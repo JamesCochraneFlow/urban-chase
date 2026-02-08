@@ -2,6 +2,9 @@ const socket = io("https://urban-chase-server.onrender.com", {
   transports: ["websocket"]
 });
 
+let map;
+let myMarker;
+
 let role = "Runner"; // or "Hunter"
 let playerLat = 0;
 let playerLon = 0;
@@ -13,6 +16,39 @@ const statusText = document.getElementById("status");
 const coordsText = document.getElementById("coords");
 const timerText = document.getElementById("timer");
 const startBtn = document.getElementById("startBtn");
+
+
+
+
+
+
+
+navigator.geolocation.getCurrentPosition((position) => {
+  playerLat = position.coords.latitude;
+  playerLon = position.coords.longitude;
+
+  map = L.map("map").setView([playerLat, playerLon], 18);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
+
+  myMarker = L.marker([playerLat, playerLon]).addTo(map)
+    .bindPopup("You")
+    .openPopup();
+
+  socket.emit("join", { lat: playerLat, lon: playerLon, role });
+});
+
+
+
+
+
+
+
+
+
+
 
 roleText.textContent = `Role: ${role}`;
 
@@ -50,6 +86,16 @@ function startRound() {
 }
 
 function updatePosition(position) {
+
+
+
+  if (myMarker) {
+  myMarker.setLatLng([playerLat, playerLon]);
+  map.panTo([playerLat, playerLon], { animate: true });
+}
+
+
+
   playerLat = position.coords.latitude;
   playerLon = position.coords.longitude;
 
@@ -81,6 +127,23 @@ socket.on("capturedBy", (data) => {
   statusText.textContent = "You were captured!";
 });
 
+
+
+let otherMarkers = {};
+
 socket.on("updatePlayers", (players) => {
-  console.log("Players:", players);
+  for (let id in players) {
+    if (id === socket.id) continue;
+
+    const p = players[id];
+
+    if (!otherMarkers[id]) {
+      otherMarkers[id] = L.circleMarker([p.lat, p.lon], {
+        radius: 8,
+        color: p.role === "Hunter" ? "red" : "blue"
+      }).addTo(map);
+    } else {
+      otherMarkers[id].setLatLng([p.lat, p.lon]);
+    }
+  }
 });
