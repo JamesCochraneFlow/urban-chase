@@ -10,6 +10,7 @@ let roundTime = 1000;
 
 const roleText = document.getElementById("role");
 const statusText = document.getElementById("status");
+const coordsText = document.getElementById("coords");
 const timerText = document.getElementById("timer");
 const startBtn = document.getElementById("startBtn");
 
@@ -54,7 +55,7 @@ function updatePosition(position) {
 
   socket.emit("updatePosition", { lat: playerLat, lon: playerLon, role });
 
-  statusText.textContent =
+  coordsText.textContent =
   `You are at:
   ${playerLat.toFixed(6)}, ${playerLon.toFixed(6)}`;
 }
