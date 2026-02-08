@@ -53,6 +53,10 @@ function updatePosition(position) {
   playerLon = position.coords.longitude;
 
   socket.emit("updatePosition", { lat: playerLat, lon: playerLon, role });
+
+  statusText.textContent =
+  `You are at:
+  ${playerLat.toFixed(6)}, ${playerLon.toFixed(6)}`;
 }
 
 
