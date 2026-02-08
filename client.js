@@ -1,4 +1,6 @@
-const socket = io();
+const socket = io("https://urban-chase-server.onrender.com", {
+  transports: ["websocket"]
+});
 
 let role = "Runner"; // or "Hunter"
 let playerLat = 0;
